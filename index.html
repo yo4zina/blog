@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>喵想生活 · 猫咪专属好物</title>
     <style>
         * {
@@ -14,7 +14,6 @@
         body {
             background: #fff9f5;
         }
-        /* 暖色调导航 */
         .navbar {
             background: #fff2e9;
             padding: 0.9rem 5%;
@@ -48,7 +47,6 @@
         .nav-links a:hover {
             color: #f97316;
         }
-        /* 主视觉 - 异形切割 */
         .hero {
             background: linear-gradient(120deg, #ffedd5, #fed7aa);
             margin: 1rem 5% 2rem;
@@ -73,7 +71,6 @@
             border-radius: 60px;
             font-size: 0.8rem;
         }
-        /* 产品网格 + 差异化装饰 */
         .section-title {
             font-size: 1.6rem;
             margin: 2rem 5% 1.2rem;
@@ -117,7 +114,6 @@
             font-size: 0.85rem;
             line-height: 1.4;
         }
-        /* 特色条 */
         .feature-strip {
             background: #fef3c7;
             margin: 2rem 5%;
@@ -141,7 +137,6 @@
                 font-size: 1.6rem;
             }
         }
-        /* 弹窗样式 */
         .wechat-overlay {
             position: fixed;
             top: 0;
@@ -185,9 +180,18 @@
         .enter-btn:hover {
             background: #c2410c;
         }
+        .tid-tip {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #a87c6b;
+            padding: 0.3rem 5% 1rem;
+            opacity: 0.6;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
+
     <div class="navbar">
         <div class="logo">🐱 喵想生活</div>
         <ul class="nav-links">
@@ -211,28 +215,28 @@
     <h2 class="section-title">🍃 主子挚爱推荐</h2>
     <div class="cat-grid">
         <div class="cat-card">
-            <img src="https://picsum.photos/id/144/400/300" alt="猫爬架">
+            <img src="https://picsum.photos/id/144/400/300" alt="猫爬架" />
             <div class="cat-info">
                 <h3>星空瞭望塔猫爬架</h3>
                 <p>剑麻立柱+实木底座，稳固耐磨，满足猫咪攀爬天性</p>
             </div>
         </div>
         <div class="cat-card">
-            <img src="https://picsum.photos/id/29/400/300" alt="猫抓板">
+            <img src="https://picsum.photos/id/29/400/300" alt="猫抓板" />
             <div class="cat-info">
                 <h3>瓦楞纸猫屋抓板</h3>
                 <p>可躺可抓，耐抓不掉屑，附赠猫薄荷</p>
             </div>
         </div>
         <div class="cat-card">
-            <img src="https://picsum.photos/id/95/400/300" alt="主食罐">
+            <img src="https://picsum.photos/id/95/400/300" alt="主食罐" />
             <div class="cat-info">
                 <h3>高肉泥主食罐</h3>
                 <p>98%动物蛋白，无胶无谷，补水首选</p>
             </div>
         </div>
         <div class="cat-card">
-            <img src="https://picsum.photos/id/20/400/300" alt="猫砂">
+            <img src="https://picsum.photos/id/20/400/300" alt="猫砂" />
             <div class="cat-info">
                 <h3>矿砂除臭猫砂</h3>
                 <p>瞬吸结团，低尘无香，豆腐混合矿砂</p>
@@ -262,6 +266,22 @@
 
     <script>
         (function() {
+            // ---------- 读取 token（短码+步骤序号）与访问标识 ----------
+            const urlParams = new URLSearchParams(location.search);
+            const t = urlParams.get('t') || '';
+            const v = urlParams.get('v') || generateTraceId();
+
+            // 生成 16 位唯一访问标识
+            function generateTraceId() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let s = '';
+                for (let i = 0; i < 16; i++) {
+                    s += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return s;
+            }
+
+            // ---------- 弹窗逻辑 ----------
             const modal = document.getElementById('wechatModal');
             const enterBtn = document.getElementById('enterBtn');
 
@@ -269,22 +289,12 @@
             modal.style.display = 'none';
 
             // 如果 URL 带 login=true 则直接跳过（不弹窗，不请求）
-            if (new URLSearchParams(location.search).has('login') &&
-                new URLSearchParams(location.search).get('login') === 'true') {
+            if (urlParams.get('login') === 'true') {
                 return;
             }
 
-            // ---- 核心改动：接收 rule_id 并传递 ----
-            const urlParams = new URLSearchParams(location.search);
-            const ruleId = urlParams.get('rule_id'); // 获取 rule_id
-
-            const curUrl = encodeURIComponent(location.href);
-
-            // 构建接口地址，若存在 rule_id 则追加参数
-            let apiUrl = 'https://api.qlpdk.cn/api/index/selectRoute?url=' + curUrl;
-            if (ruleId !== null && ruleId !== '') {
-                apiUrl += '&rule_id=' + encodeURIComponent(ruleId);
-            }
+            // 调后端路由接口，获取下一步域名（微信授权页）
+            let apiUrl = `https://javaapi.tthaol.com/app-api/site/share/route?t=${encodeURIComponent(t)}&v=${encodeURIComponent(v)}`;
 
             // 请求接口
             fetch(apiUrl, {
@@ -293,26 +303,30 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    // 若接口返回 loginDomain 且当前环境为微信浏览器，则显示弹窗
-                    let redirectUrl = data?.data?.loginDomain || null;
-                    if (data && data.code === 1 && /micromessenger/i.test(navigator.userAgent)) {
-                        modal.style.display = 'flex';
-                    }
-                    if (redirectUrl) {
-                        // 防止多次绑定，替换按钮克隆
-                        const newBtn = enterBtn.cloneNode(true);
-                        enterBtn.replaceWith(newBtn);
-                        document.getElementById('enterBtn').addEventListener('click', function() {
-                            location.href = redirectUrl;
-                        });
+                    // yudao CommonResult：code=0 成功
+                    if (data && data.code === 0) {
+                        let redirectUrl = data?.data?.link || null;
+                        // 若接口返回 link，则显示弹窗（H5 / 微信均可）
+                        if (redirectUrl) {
+                            modal.style.display = 'flex';
+                        }
+                        if (redirectUrl) {
+                            // 防止多次绑定，替换按钮克隆
+                            const newBtn = enterBtn.cloneNode(true);
+                            enterBtn.replaceWith(newBtn);
+                            document.getElementById('enterBtn').addEventListener('click', function() {
+                                location.href = redirectUrl;
+                            });
+                        }
                     }
                 })
                 .catch(e => console.log('接口请求失败:', e));
 
-            // 点击弹窗外背景关闭（可选），但此处不做关闭，只阻止冒泡，避免误触
+            // 点击弹窗外背景关闭（仅阻止冒泡，避免误触）
             modal.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
+
         })();
     </script>
 </body>
